@@ -1,9 +1,87 @@
+-- This file includes some extra queries I ran that I was curious about
+
+-- This finds the Data Analyst postings and the number of skills listed
+-- together with the compensation, postings with no compensation listed were excluded 
+
+SELECT 
+    job_postings_fact.job_title,
+    job_postings_fact.salary_year_avg,
+    COUNT(*) as skill_count
+FROM job_postings_fact
+LEFT JOIN skills_job_dim ON job_postings_fact.job_id = skills_job_dim.job_id
+WHERE
+    job_postings_fact.salary_year_avg IS NOT NULL AND
+    job_title LIKE '%Data Analyst%'
+GROUP BY job_postings_fact.job_id
+ORDER BY count(*) DESC
+LIMIT 10
+
+
+/*
+Result set of the 10 most skills intensive Data Analyst roles and how much they pay
+[
+  {
+    "job_title": "Senior - Data Analyst",
+    "salary_year_avg": "160515.0",
+    "skill_count": "21"
+  },
+  {
+    "job_title": "Data Analyst",
+    "salary_year_avg": "67897.0",
+    "skill_count": "20"
+  },
+  {
+    "job_title": "Staff Data Analyst",
+    "salary_year_avg": "180000.0",
+    "skill_count": "18"
+  },
+  {
+    "job_title": "Senior Data Analyst",
+    "salary_year_avg": "140000.0",
+    "skill_count": "17"
+  },
+  {
+    "job_title": "Data Analyst - OpenData Europe",
+    "salary_year_avg": "105000.0",
+    "skill_count": "17"
+  },
+  {
+    "job_title": "Senior Data Analyst",
+    "salary_year_avg": "87027.5",
+    "skill_count": "17"
+  },
+  {
+    "job_title": "Senior Data Analyst",
+    "salary_year_avg": "130000.0",
+    "skill_count": "16"
+  },
+  {
+    "job_title": "Lead Data Analyst",
+    "salary_year_avg": "112500.0",
+    "skill_count": "16"
+  },
+  {
+    "job_title": "Data Analyst",
+    "salary_year_avg": "100000.0",
+    "skill_count": "16"
+  },
+  {
+    "job_title": "Data Analyst/PH SME",
+    "salary_year_avg": "75000.0",
+    "skill_count": "16"
+  }
+]
+*/
+
+
+
+
 /*
 I got interested in which companies wanted the most skills from their 
 employees / most descriptive in their postings
 */
 
--- this finds gives the company and the number jobs they posted
+-- this finds every job posting in the data set together with the company which posted it
 WITH company_postings AS (
     SELECT 
         name,
@@ -12,11 +90,11 @@ WITH company_postings AS (
     INNER JOIN company_dim ON company_dim.company_id = job_postings_fact.company_id
 ),
 
--- this gives the job postings and number of skills listed
+-- this gives each job postings and number of skills listed in them
 posting_skills AS (
     SELECT 
         job_postings_fact.job_id,
-        count(*) AS skills
+        COUNT(*) AS skills
     FROM job_postings_fact
     LEFT JOIN skills_job_dim ON skills_job_dim.job_id = job_postings_fact.job_id
     GROUP BY job_postings_fact.job_id
@@ -25,16 +103,17 @@ posting_skills AS (
 -- of jobs posted, total skills of those job and avg skills per posting
 SELECT 
     name AS Company,
-    count(*) AS jobs_posted,
-    sum(skills) AS total_skills,
-    round((sum(skills) / count(*)),2) AS Avg_skills_listed_per_job
+    COUNT(*) AS jobs_posted,
+    SUM(skills) AS total_skills,
+    ROUND(AVG(SKILLS),2)
 from company_postings
 INNER JOIN posting_skills on posting_skills.job_id= company_postings.job_id
 GROUP BY name
-ORDER BY Avg_skills_listed_per_job DESC
+ORDER BY AVG(SKILLS) DESC
 --LIMIT 10
 
 /*
+Wow, one company is asking for an average of 44 skills for their employees 
 [
   {
     "company": "Techversant Infotech Pvt Ltd",
@@ -100,6 +179,7 @@ ORDER BY Avg_skills_listed_per_job DESC
 */
 
 -- I didnt believe the number of skills listed so I needed to double check
+-- A quick check with just the skills_job_dim table
 select 
     job_id,
     count(*) as skills
@@ -199,8 +279,8 @@ Results: with the top job listing 53 skills it seems pausible
 
 -- quick and dirty search of the total average skill per job
 select 
-    count(*) AS total_jobs,
-    sum(skills) AS total_skills,
+    count(*) AS total_jobs_posted,
+    sum(skills) AS total_skills_listed,
     ROUND(sum(skills)/count(*),2) as avg_skill_per_job
 FROM (
     select 
@@ -210,3 +290,12 @@ FROM (
     GROUP BY job_id
     ORDER by skills DESC) as job_skills
 
+/*
+[
+  {
+    "total_jobs_posted": "670364",
+    "total_skills_listed": "3669604",
+    "avg_skill_per_job": "5.47"
+  }
+]
+*/

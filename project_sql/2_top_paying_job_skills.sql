@@ -117,11 +117,12 @@ Results of above Query on data set
 
 /*
 Optimising query and also filtering according to my interests 
+However this is not the top paying jobs and rather all Data Analyst jobs in Australia
 */
 
 SELECT
     skills_dim.skills,
-    count(skills_dim.skills)
+    COUNT(skills_dim.skills)
 FROM skills_job_dim
 INNER JOIN job_postings_fact ON job_postings_fact.job_id = skills_job_dim.job_id
 INNER JOIN skills_dim ON skills_job_dim.skill_id = skills_dim.skill_id
