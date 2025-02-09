@@ -2,7 +2,6 @@
 Find out what the skills of the top paying Data Analyst jobs are
 This builds on the first query. 
 Result set of below finds what the skills listed are for the jobs filtered within the CTE
-Current CTE filters on data analyst jobs in australia
 */
 
 WITH jobs AS (
@@ -33,7 +32,7 @@ INNER JOIN skills_job_dim ON jobs.job_id = skills_job_dim.job_id) AS job_skills
 LEFT JOIN skills_dim ON skills_dim.skill_id = job_skills.skill_id
 GROUP BY skills_dim.skills
 ORDER BY count(skills_dim.skills) DESC
-LIMIT 15
+LIMIT 10
 /*
 Results of above Query on data set
 [
@@ -113,114 +112,4 @@ Results of above Query on data set
     "percent_of_total_jobs": "8.00"
   }
 ]
-*/
-
-/*
-Optimising query and also filtering according to my interests 
-However this is not the top paying jobs and rather all Data Analyst jobs in Australia
-*/
-
-SELECT
-    skills_dim.skills,
-    COUNT(skills_dim.skills)
-FROM skills_job_dim
-INNER JOIN job_postings_fact ON job_postings_fact.job_id = skills_job_dim.job_id
-INNER JOIN skills_dim ON skills_job_dim.skill_id = skills_dim.skill_id
-WHERE
-    job_postings_fact.job_country = 'Australia' AND
-    job_postings_fact.job_title_short = 'Data Analyst'
-GROUP BY skills_dim.skills
-ORDER BY count(skills_dim.skills) DESC
-LIMIT 20
-
-
-/*
-Here are the results in json format:
-
-skill = skills listed
-count = how many of the filtered jobs listed the skill
-
-[
-  {
-    "skills": "sql",
-    "count": "772"
-  },
-  {
-    "skills": "python",
-    "count": "437"
-  },
-  {
-    "skills": "power bi",
-    "count": "398"
-  },
-  {
-    "skills": "excel",
-    "count": "390"
-  },
-  {
-    "skills": "tableau",
-    "count": "329"
-  },
-  {
-    "skills": "r",
-    "count": "269"
-  },
-  {
-    "skills": "sas",
-    "count": "196"
-  },
-  {
-    "skills": "azure",
-    "count": "144"
-  },
-  {
-    "skills": "aws",
-    "count": "117"
-  },
-  {
-    "skills": "go",
-    "count": "111"
-  },
-  {
-    "skills": "sql server",
-    "count": "100"
-  },
-  {
-    "skills": "snowflake",
-    "count": "82"
-  },
-  {
-    "skills": "word",
-    "count": "76"
-  },
-  {
-    "skills": "oracle",
-    "count": "69"
-  },
-  {
-    "skills": "sap",
-    "count": "63"
-  },
-  {
-    "skills": "jira",
-    "count": "56"
-  },
-  {
-    "skills": "flow",
-    "count": "54"
-  },
-  {
-    "skills": "alteryx",
-    "count": "54"
-  },
-  {
-    "skills": "databricks",
-    "count": "47"
-  },
-  {
-    "skills": "dax",
-    "count": "47"
-  }
-]
-
 */

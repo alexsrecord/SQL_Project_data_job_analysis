@@ -4,8 +4,8 @@ Finding out which skills pay the most on average for a data Analyst
 
 SELECT 
   skills,
-  SUM(salary_year_avg),
-  COUNT(skills),
+  --SUM(salary_year_avg),
+  COUNT(skills) AS job_postings,
   ROUND(AVG(salary_year_avg),2) AS skill_avg_pay
 FROM skills_job_dim
 INNER JOIN skills_dim ON skills_dim.skill_id = skills_job_dim.skill_id
